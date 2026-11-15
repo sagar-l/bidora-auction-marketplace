@@ -134,7 +134,7 @@ export function AuthForm({ register = false, error, message, detail, intent, nex
         <div className="auth-emblem"><Gavel /></div>
         <div className="eyebrow">WELCOME TO BIDORA</div>
         <h1>{register ? 'Create your account' : 'Good to see you again'}</h1>
-        <p className="muted">{intent === 'sell' ? 'Sign in or create an account to start selling. Choose buyer or seller when you sign up.' : register ? 'Join the marketplace for extraordinary finds.' : 'Sign in to follow auctions and discover more.'}</p>
+        <p className="muted">{intent === 'sell' ? 'Sign in or create an account to start selling. Choose buyer or seller when you sign up.' : intent === 'explore' ? 'Sign in or create an account to explore auctions and place bids.' : register ? 'Join the marketplace for extraordinary finds.' : 'Sign in to follow auctions and discover more.'}</p>
         {formError && <div className="demo-note" role="alert">{formError}</div>}
         {notice && <div className="demo-note" role="status">{notice}</div>}
         <form onSubmit={handleSubmit} className="form-stack">
