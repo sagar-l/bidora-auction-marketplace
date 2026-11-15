@@ -120,7 +120,7 @@ export async function moderateListing(formData: FormData) {
     const startingPrice = Number(formData.get('startingPrice'));
     if (!Number.isFinite(startingPrice) || startingPrice < 1) redirect('/admin?error=moderate');
     const approvedAt = new Date();
-    const result = await supabase.from('auctions').update({ status: 'live', starting_price: startingPrice, current_price: startingPrice, starts_at: approvedAt.toISOString(), ends_at: new Date(approvedAt.getTime() + 7 * 86400000).toISOString(), auction_round: 1, latest_bid_at: null, bid_count: 0, currency: 'INR' }).eq('id', id).eq('status', 'pending').select('id,slug').maybeSingle();
+    const result = await supabase.from('auctions').update({ status: 'live', starting_price: startingPrice, current_price: startingPrice, starts_at: approvedAt.toISOString(), ends_at: new Date(approvedAt.getTime() + 5 * 60 * 1000).toISOString(), auction_round: 1, latest_bid_at: null, bid_count: 0, currency: 'INR' }).eq('id', id).eq('status', 'pending').select('id,slug').maybeSingle();
     changed = result.data;
     error = result.error;
   } else {
@@ -195,7 +195,7 @@ export async function createListing(formData: FormData) {
     imageUrl = supabase.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
   }
   const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70)}-${crypto.randomUUID().slice(0, 8)}`;
-  const { error } = await supabase.from('auctions').insert({ seller_id: user.id, title, slug, category, description, condition, image_url: imageUrl, starting_price: startingPrice, current_price: startingPrice, status: 'pending', ends_at: new Date(Date.now() + 7 * 86400000).toISOString() });
+  const { error } = await supabase.from('auctions').insert({ seller_id: user.id, title, slug, category, description, condition, image_url: imageUrl, starting_price: startingPrice, current_price: startingPrice, status: 'pending', ends_at: new Date(Date.now() + 5 * 60 * 1000).toISOString() });
   if (error) redirect('/sell?error=save');
   revalidatePath('/sell');
   revalidatePath('/dashboard');

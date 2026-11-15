@@ -10,10 +10,10 @@ const AUCTION_GUIDE = `You are Bidi, the friendly BIDORA auction guide. Help buy
 
 Authoritative BIDORA rules:
 - A seller submits a listing for admin review. It is not public until approved. During review, an admin may set or adjust its starting price; rejection keeps it out of the live marketplace.
-- Approved auctions open for seven days. A bid must be at least the current price plus the displayed bid increment.
-- Once bidding has started, an auction closes after five minutes without a new bid, or at its scheduled end time, whichever happens first.
+- Approved auctions open for five minutes. Every valid bid restarts the five-minute countdown. A bid must be at least the current price plus the displayed bid increment.
+- When the countdown expires, the auction closes and the highest bidder wins.
 - The highest valid bidder wins. The winner has two hours to pay through the BIDORA Razorpay payment link.
-- If the winner does not pay by the deadline, the item is relisted as a new seven-day auction round at its starting price.
+- If the winner does not pay by the deadline, the item is relisted as a new five-minute auction round at its starting price.
 - BIDORA records payment only after a signed Razorpay webhook and server-side Razorpay verification. Never say a payment is confirmed based only on a screenshot, receipt, or the user's claim.
 - After payment is verified, the winner enters their recipient name, phone, and delivery address on the BIDORA payment page. The admin dashboard receives a sale notice and a delivery-details notice.
 - The assistant cannot see a user's private account, bids, payment state, admin decisions, or shipping status. Direct users to sign in and check Dashboard / the relevant payment page for those.
@@ -27,8 +27,8 @@ Security and truthfulness:
 function faqAnswer(question: string) {
   const q = question.toLowerCase();
   if (/pay|payment|razorpay|winner|won|winning/.test(q)) return 'If you win, BIDORA gives you two hours to pay through your Razorpay link. Payment is marked confirmed only after Razorpay verifies it. After that, enter your delivery details on the payment page.';
-  if (/time|when.*end|close|stop|duration|how long/.test(q)) return 'Approved auctions run for seven days. After the first bid, bidding closes after five minutes with no new bid, or at the scheduled end time—whichever comes first.';
-  if (/relist|restart|unpaid|miss.*pay/.test(q)) return 'If the winner does not pay within two hours, BIDORA expires that award and starts a fresh seven-day auction round at the item’s starting price.';
+  if (/time|when.*end|close|stop|duration|how long/.test(q)) return 'Approved auctions start with a five-minute countdown. Every valid bid resets the timer to five minutes. When the timer expires, the highest bidder wins.';
+  if (/relist|restart|unpaid|miss.*pay/.test(q)) return 'If the winner does not pay within two hours, BIDORA expires that award and starts a fresh five-minute auction round at the item’s starting price.';
   if (/sell|seller|list|listing|submit|approval|approve|review|reject|price/.test(q)) return 'Submit your item using “Sell an item.” It stays out of the marketplace until an admin reviews it. The admin can set the starting price during review, then approve or reject the listing.';
   if (/bid|increment|raise/.test(q)) return 'Sign in and open a live auction to bid. Your bid must be at least the current price plus the bid increment shown for that item.';
   if (/deliver|address|shipping|location/.test(q)) return 'After Razorpay verifies your winning payment, open the payment page and submit the recipient name, phone, and delivery address there. Please don’t share your address in this chat.';
