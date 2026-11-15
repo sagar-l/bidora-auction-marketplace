@@ -1,0 +1,1 @@
+import {AuthForm} from '@/components/auth-form';export default function Register({searchParams}:{searchParams:{error?:string;detail?:string;intent?:string;next?:string}}){return <AuthForm register error={searchParams.error} detail={searchParams.detail} intent={searchParams.intent} next={searchParams.next}/>}

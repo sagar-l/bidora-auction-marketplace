@@ -1,0 +1,21 @@
+.bidi-chat-root{position:fixed;right:24px;bottom:24px;z-index:1000;font-family:inherit;color:#f7f6fb}
+.bidi-chat-launch{position:relative;display:flex;align-items:center;gap:10px;border:1px solid rgba(0,123,167,.7);border-radius:999px;background:linear-gradient(135deg,#0785ad,#006487);color:white;padding:14px 19px;font-size:14px;font-weight:700;box-shadow:0 12px 36px rgba(0,123,167,.32);cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+.bidi-chat-launch:hover{transform:translateY(-2px);box-shadow:0 16px 42px rgba(0,123,167,.4)}
+.bidi-chat-launch.is-open{padding:13px;border-color:#34343a;background:#17171a;box-shadow:0 8px 28px #0008}
+.bidi-launch-spark{position:absolute;right:9px;top:7px;color:#ff2d95;transform:translate(50%,-50%)}
+.bidi-chat-panel{position:absolute;right:0;bottom:70px;display:flex;flex-direction:column;width:min(390px,calc(100vw - 32px));height:min(570px,calc(100dvh - 120px));overflow:hidden;border:1px solid #2d2d32;border-radius:22px;background:linear-gradient(160deg,#171719,#0d0d0f 70%);box-shadow:0 24px 80px #000b;animation:bidi-enter .18s ease-out}
+@keyframes bidi-enter{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.bidi-chat-header{display:flex;align-items:center;gap:12px;padding:16px 17px;border-bottom:1px solid #29292e;background:#151518}
+.bidi-avatar,.bidi-message-avatar{position:relative;display:grid;place-items:center;flex:none;color:#44c4e9;background:#09252d;border:1px solid #0d4556;border-radius:14px;width:42px;height:42px}
+.bidi-avatar i{position:absolute;right:-4px;top:-4px;color:#ff2d95}
+.bidi-chat-title{display:grid;gap:3px;flex:1}.bidi-chat-title strong{font-size:15px}.bidi-chat-title small{font-size:11px;color:#a5a3ae}.bidi-chat-title b{color:#ff2d95}
+.bidi-close{display:grid;place-items:center;width:34px;height:34px;border:0;border-radius:10px;background:transparent;color:#a8a6b0;cursor:pointer}.bidi-close:hover{background:#242429;color:white}
+.bidi-chat-messages{display:flex;flex:1;flex-direction:column;gap:14px;overflow-y:auto;padding:18px 15px;scrollbar-color:#3d3d45 transparent}
+.bidi-message{display:flex;align-items:flex-end;gap:8px}.bidi-message p{max-width:85%;margin:0;padding:11px 13px;border:1px solid #29292f;border-radius:15px 15px 15px 4px;background:#1b1b20;color:#efedf4;font-size:13px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}.bidi-message.user{justify-content:flex-end}.bidi-message.user p{border-color:#075e78;border-radius:15px 15px 4px 15px;background:#07516a}
+.bidi-message-avatar{width:25px;height:25px;border-radius:9px}.bidi-suggestions{display:flex;flex-wrap:wrap;gap:7px;padding-left:33px}.bidi-suggestions button{border:1px solid #33343b;border-radius:999px;background:#151519;color:#c8c6d0;padding:8px 10px;font-size:11px;text-align:left;cursor:pointer}.bidi-suggestions button:hover{border-color:#007ba7;color:#7ddcf6}
+.bidi-typing{display:flex;align-items:center;gap:5px;padding-left:34px;color:#9c99a6;font-size:11px}.bidi-typing span{width:5px;height:5px;border-radius:50%;background:#46c7e9;animation:bidi-dot 1s infinite alternate}.bidi-typing span:nth-child(2){animation-delay:.2s}.bidi-typing span:nth-child(3){animation-delay:.4s}@keyframes bidi-dot{to{opacity:.25;transform:translateY(-3px)}}
+.bidi-chat-error{margin:0 0 0 33px;color:#ff9fc9;font-size:12px;line-height:1.4}
+.bidi-chat-form{display:flex;gap:8px;padding:12px;border-top:1px solid #29292e}.bidi-chat-form input{min-width:0;flex:1;border:1px solid #36363d;border-radius:13px;background:#101013;color:#f5f4f8;padding:12px 13px;font:inherit;font-size:13px;outline:none}.bidi-chat-form input:focus{border-color:#007ba7;box-shadow:0 0 0 3px #007ba733}.bidi-chat-form button{display:grid;place-items:center;width:43px;border:0;border-radius:13px;background:#007ba7;color:white;cursor:pointer}.bidi-chat-form button:disabled{opacity:.45;cursor:not-allowed}
+.bidi-chat-note{margin:0;padding:0 14px 12px;color:#8b8994;text-align:center;font-size:10px}
+@media(max-width:520px){.bidi-chat-root{right:14px;bottom:14px}.bidi-chat-panel{right:-2px;bottom:64px;height:min(610px,calc(100dvh - 100px));border-radius:19px}.bidi-chat-launch{padding:13px 16px}}
+@media(prefers-reduced-motion:reduce){.bidi-chat-panel{animation:none}.bidi-chat-launch{transition:none}.bidi-typing span{animation:none}}

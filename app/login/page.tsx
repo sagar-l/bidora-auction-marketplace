@@ -1,0 +1,1 @@
+import {AuthForm} from '@/components/auth-form';export default function Login({searchParams}:{searchParams:{error?:string;message?:string;intent?:string;next?:string}}){return <AuthForm error={searchParams.error} message={searchParams.message} intent={searchParams.intent} next={searchParams.next}/>}
