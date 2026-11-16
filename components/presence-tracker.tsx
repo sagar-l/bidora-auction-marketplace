@@ -12,7 +12,9 @@ export function PresenceTracker({ userId }: { userId: string }) {
     const ping = () => {
       if (document.visibilityState !== 'visible' || Date.now() - lastPing < 30000) return;
       lastPing = Date.now();
-      void supabase.from('profiles').update({ last_seen_at: new Date().toISOString() }).eq('id', userId);
+      void supabase.rpc('heartbeat_presence').then(({ error }) => {
+        if (error) console.error('BIDORA presence heartbeat failed:', error.message);
+      });
     };
 
     ping();
