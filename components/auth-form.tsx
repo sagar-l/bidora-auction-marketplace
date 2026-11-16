@@ -26,8 +26,11 @@ function authLink(path: '/login' | '/register', intent?: string, next?: string) 
 
 function friendlyAuthError(message: string, code?: string) {
   const normalized = message.toLowerCase();
+  if (normalized.includes('email address not authorized') || code === 'email_address_not_authorized') {
+    return 'Supabase has not enabled email delivery to this address. Set up a custom SMTP sender in Supabase Authentication settings, then try again.';
+  }
   if (normalized.includes('email rate limit') || code === 'over_email_send_rate_limit') {
-    return 'Supabase has temporarily limited signup emails. Wait for the limit to reset, then try again.';
+    return 'Signup email limit reached. Wait before retrying, or set up custom SMTP in Supabase Authentication settings.';
   }
   if (normalized.includes('email not confirmed') || code === 'email_not_confirmed') {
     return 'Confirm your email using the link Supabase sent, then sign in again.';
@@ -59,7 +62,7 @@ export function AuthForm({ register = false, error, message, detail, intent, nex
     : error ? (detail ? friendlyAuthError(detail) : error) : '';
   const [formError, setFormError] = useState(initialError);
   const [notice, setNotice] = useState(message === 'verify'
-    ? 'Account request received. Check your email for the confirmation link, then sign in.'
+    ? 'Account created. Check your inbox and spam folder for the confirmation link.'
     : message === 'password-updated' ? 'Your password was updated. Sign in with your new password.' : '');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -84,12 +87,29 @@ export function AuthForm({ register = false, error, message, detail, intent, nex
 
     try {
       if (register) {
+        const confirmationUrl = new URL('/auth/callback', window.location.origin);
+        confirmationUrl.searchParams.set('next', destinationFor(accountType, intent, next));
         const { data, error: authError } = await withTimeout(
-          supabase.auth.signUp({ email, password, options: { data: { display_name: displayName, account_type: accountType } } }),
+          supabase.auth.signUp({ email, password, options: {
+            data: { display_name: displayName, account_type: accountType },
+            emailRedirectTo: confirmationUrl.toString(),
+          } }),
           15000,
         );
         if (authError) {
           setFormError(friendlyAuthError(authError.message, authError.code));
+          return;
+        }
+        if (data.user?.identities?.length === 0) {
+          const { error: resendError } = await withTimeout(
+            supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: confirmationUrl.toString() } }),
+            15000,
+          );
+          if (resendError) {
+            setFormError(friendlyAuthError(resendError.message, resendError.code));
+          } else {
+            setNotice('If this account is awaiting confirmation, a fresh link has been sent. Check your inbox and spam folder.');
+          }
           return;
         }
         if (data.session) {
@@ -97,7 +117,7 @@ export function AuthForm({ register = false, error, message, detail, intent, nex
           router.refresh();
           return;
         }
-        setNotice('Account request received. Check your email for the confirmation link, then sign in.');
+        setNotice('Account created. Check your inbox and spam folder for the confirmation link.');
         const verificationPath = authLink('/login', intent, next);
         router.replace(`${verificationPath}${verificationPath.includes('?') ? '&' : '?'}message=verify`);
         router.refresh();
