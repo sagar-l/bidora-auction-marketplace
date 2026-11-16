@@ -159,7 +159,7 @@ export function AuthForm({ register = false, error, message, detail, intent, nex
         {notice && <div className="demo-note" role="status">{notice}</div>}
         <form onSubmit={handleSubmit} className="form-stack">
           {register && <label className="form-label">Full name<input name="displayName" className="input" placeholder="Your name" autoComplete="name" required /></label>}
-          {register && <fieldset className="account-type-fieldset"><legend>I want to join as</legend><div className="account-type-options"><label className="account-type-option"><input type="radio" name="accountType" value="buyer" defaultChecked={intent !== 'sell'}/><span><strong>Buyer</strong><small>Discover and bid on items</small></span></label><label className="account-type-option"><input type="radio" name="accountType" value="seller" defaultChecked={intent === 'sell'}/><span><strong>Seller</strong><small>List items for auction</small></span></label></div></fieldset>}
+          {register && <fieldset className="account-type-fieldset"><legend>What would you like to do on BIDORA?</legend><div className="account-type-options"><label className="account-type-option"><input type="radio" name="accountType" value="buyer" defaultChecked={intent !== 'sell'}/><span><strong>Buy an item</strong><small>Join as a buyer, bid, and track your purchases</small></span></label><label className="account-type-option"><input type="radio" name="accountType" value="seller" defaultChecked={intent === 'sell'}/><span><strong>Sell an item</strong><small>Join as a seller and track your sales</small></span></label></div></fieldset>}
           <label className="form-label">Email address<input name="email" className="input" type="email" placeholder="you@example.com" autoComplete="email" required /></label>
           <label className="form-label">Password<input name="password" className="input" type="password" placeholder="At least 8 characters" minLength={8} autoComplete={register ? 'new-password' : 'current-password'} required /></label>
           {!register && <div className="auth-forgot"><Link href="/forgot-password">Forgot password?</Link></div>}
@@ -172,3 +172,4 @@ export function AuthForm({ register = false, error, message, detail, intent, nex
     </section>
   );
 }
+
