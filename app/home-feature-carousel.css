@@ -31,3 +31,31 @@
 .home-feature-controls {
   z-index: 5;
 }
+
+/* Keep the callouts on top of the carousel instead of underneath its image layers. */
+.hero-main-image {
+  position: relative;
+  z-index: 1;
+}
+
+.floating-card {
+  z-index: 2;
+}
+
+.floating-top {
+  right: -3%;
+}
+
+.floating-bottom {
+  left: -3%;
+}
+
+@media (max-width: 900px) {
+  .floating-top {
+    right: 0;
+  }
+
+  .floating-bottom {
+    left: 0;
+  }
+}
