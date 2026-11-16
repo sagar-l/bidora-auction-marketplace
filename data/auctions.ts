@@ -9,4 +9,11 @@ export const auctions:Auction[]=[
 {id:'vinyl-player',title:'Belt-drive Record Player',category:'Electronics',price:510,bids:11,ends:'11h 26m',image:'photo-1461360228754-6e81c478b882',condition:'Excellent',seller:'Needle Drop',description:'A beautifully maintained belt-drive turntable with a low-noise motor and upgraded cartridge. Packed with care for shipping.'},
 {id:'gold-ring',title:'Vintage Signet Ring',category:'Jewellery',price:960,bids:6,ends:'2d 01h',image:'photo-1605100804763-247f67b3557e',condition:'Vintage · 14k',seller:'Golden Hour',description:'A timeless vintage signet ring in solid 14k gold. Professionally cleaned and sized, with hallmark verified.'}
 ];
-export const categories=[{name:'Watches',icon:'◷',count:'1.2k items'},{name:'Electronics',icon:'⌁',count:'840 items'},{name:'Fashion',icon:'◇',count:'2.1k items'},{name:'Collectibles',icon:'✳',count:'690 items'},{name:'Home',icon:'⌂',count:'520 items'},{name:'Jewellery',icon:'✧',count:'430 items'}];
+export const categories=[
+  {name:'Watches',icon:'◷',count:'1.2k items',image:'/category-images/watches-classic.jpg'},
+  {name:'Electronics',icon:'⌁',count:'840 items',image:'/category-images/electronics-samsung.jpg'},
+  {name:'Fashion',icon:'◇',count:'2.1k items',image:'/category-images/fashion-menswear.jpg'},
+  {name:'Collectibles',icon:'✳',count:'690 items',image:'/category-images/collectibles-figures.jpg'},
+  {name:'Home',icon:'⌂',count:'520 items',image:'/category-images/home-decor.jpg'},
+  {name:'Jewellery',icon:'✧',count:'430 items',image:'/category-images/jewellery-gold-set.jpg'}
+];
