@@ -16,14 +16,16 @@ export async function SiteHeader() {
   const { data: profile } = supabase && user
     ? await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
     : { data: null };
-  const sellHref = user ? '/sell' : '/login?intent=sell&next=%2Fsell';
+  const isSeller = profile?.role === 'seller' || profile?.role === 'admin';
+  const actionHref = user ? (isSeller ? '/sell' : '/auctions') : '/login?intent=sell&next=%2Fsell';
+  const actionLabel = user && !isSeller ? 'Buy an item' : 'Sell an item';
 
   return <header className="header">
     {user && <PresenceTracker userId={user.id}/>}
     <div className="container header-inner">
       <Brand/>
       <nav className="nav desktop-nav">
-        <Link href="/auctions">Auctions</Link><Link href="/#categories">Categories</Link><Link href={sellHref}>Sell an item</Link><Link href="/dashboard">Dashboard</Link>
+        <Link href="/auctions">Auctions</Link><Link href="/#categories">Categories</Link><Link href={actionHref}>{actionLabel}</Link><Link href="/dashboard">Dashboard</Link>
         {profile?.role === 'admin' && <Link href="/admin">Admin</Link>}
       </nav>
       <div className="header-actions">
@@ -31,7 +33,7 @@ export async function SiteHeader() {
         <Link className="icon-link heart-link" href="/dashboard" aria-label="Saved"><Heart size={18}/></Link>
         {user ? <><Link className="btn btn-quiet header-login" href="/account">My account</Link><form action={signOut}><button className="btn btn-primary header-login">Sign out</button></form></> : <Link className="btn btn-primary header-login" href="/login"><UserRound size={15}/> Sign in</Link>}
       </div>
-      <MobileNavigation sellHref={sellHref}/>
+      <MobileNavigation actionHref={actionHref} actionLabel={actionLabel}/>
     </div>
   </header>;
 }

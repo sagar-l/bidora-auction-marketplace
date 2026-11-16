@@ -14,9 +14,12 @@ export default async function Dashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  const { data: profile } = await supabase.from('profiles').select('display_name,role').eq('id', user.id).maybeSingle();
+  const isSeller = profile?.role === 'seller' || profile?.role === 'admin';
+  const primaryActionHref = isSeller ? '/sell' : '/auctions';
+  const primaryActionLabel = isSeller ? 'List an item' : 'Buy an item';
   const onlineSince = new Date(Date.now() - 2 * 60 * 1000).toISOString();
-  const [{ data: profile }, { data: listings }, { data: bids }, { data: saved }, { count: buyers }, { count: sellers }, { count: onlineBuyers }, { count: onlineSellers }, { data: awards }] = await Promise.all([
-    supabase.from('profiles').select('display_name,role').eq('id', user.id).maybeSingle(),
+  const [{ data: listings }, { data: bids }, { data: saved }, { count: buyers }, { count: sellers }, { count: onlineBuyers }, { count: onlineSellers }, { data: awards }] = await Promise.all([
     supabase.from('auctions').select('id,slug,title,status,current_price,ends_at,category,condition,description,image_url,bid_count').eq('seller_id', user.id).order('created_at', { ascending: false }).limit(6),
     supabase.from('bids').select('id,amount,auction_id,created_at').eq('bidder_id', user.id).order('created_at', { ascending: false }).limit(8),
     supabase.from('watchlist').select('auction_id').eq('user_id', user.id),
@@ -46,7 +49,7 @@ export default async function Dashboard() {
     <section className="section page-section">
       <div className="container">
         <DashboardRefresh/>
-        <div className="dashboard-welcome"><div><div className="eyebrow">YOUR BIDORA</div><h1>Welcome, {profile?.display_name || user.email?.split('@')[0]}</h1><p className="muted">Your account, bids and listings in one place.</p></div><Link href="/sell" className="btn btn-primary">List an item <ArrowUpRight size={15}/></Link></div>
+        <div className="dashboard-welcome"><div><div className="eyebrow">YOUR BIDORA</div><h1>Welcome, {profile?.display_name || user.email?.split('@')[0]}</h1><p className="muted">Your account, bids and listings in one place.</p></div><Link href={primaryActionHref} className="btn btn-primary">{primaryActionLabel} <ArrowUpRight size={15}/></Link></div>
         <div className="stat-grid"><Stat icon={<Gavel/>} label="Your bids" value={String(liveBids.length).padStart(2, '0')} hint="Recent bid activity"/><Stat icon={<Heart/>} label="Watchlist" value={String(saved?.length || 0).padStart(2, '0')} hint="Saved auctions"/><Stat icon={<Package/>} label="Your listings" value={String(listings?.length || 0).padStart(2, '0')} hint="Including review queue"/><Stat icon={<Wallet/>} label="Account" value={profile?.role || 'buyer'} hint={user.email || ''}/></div>
 
         <section className="community-panel surface" aria-label="BIDORA buyer and seller counts">
