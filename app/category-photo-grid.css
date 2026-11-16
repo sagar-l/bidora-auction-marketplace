@@ -1,0 +1,64 @@
+.category-photo-tile {
+  height: 240px;
+  background: linear-gradient(115deg, #111116 0%, #1b1a22 62%, #24212a 100%);
+}
+
+.category-photo-tile > .product-image {
+  inset: 0 0 0 auto;
+  width: 62%;
+  height: 100%;
+  background-position: right center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.category-photo-tile:hover > .product-image {
+  transform: none;
+}
+
+.category-photo-shade {
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, #111116 0%, #111116e8 34%, #11111635 70%, transparent 100%),
+    linear-gradient(0deg, #09090c55, transparent 48%);
+}
+
+.category-photo-copy {
+  z-index: 2;
+  max-width: 48%;
+  left: 18px;
+  bottom: 18px;
+}
+
+.category-photo-arrow {
+  z-index: 3;
+}
+
+@media (max-width: 900px) {
+  .category-photo-tile {
+    height: 190px;
+  }
+
+  .category-photo-tile > .product-image {
+    width: 60%;
+  }
+
+  .category-photo-copy {
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 680px) {
+  .category-photo-tile {
+    height: 160px;
+  }
+
+  .category-photo-tile > .product-image {
+    width: 64%;
+  }
+
+  .category-photo-copy {
+    max-width: 48%;
+  }
+}
