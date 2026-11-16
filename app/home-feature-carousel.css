@@ -1,0 +1,33 @@
+.home-feature-image {
+  z-index: 1;
+  object-fit: contain;
+  background: #111116;
+  opacity: 1;
+  animation: none;
+  transition: opacity 700ms ease-in-out;
+}
+
+.home-feature-image-previous {
+  z-index: 2;
+}
+
+.home-feature-image-current {
+  z-index: 3;
+}
+
+.home-feature-image-current.is-loading {
+  opacity: 0;
+}
+
+.home-feature-image-previous.is-fading {
+  opacity: 0;
+}
+
+.home-feature-shade {
+  z-index: 4;
+}
+
+.home-feature-caption,
+.home-feature-controls {
+  z-index: 5;
+}

@@ -22,26 +22,63 @@ const slides = [
 ];
 
 export function HomeFeatureCarousel() {
-  const [active, setActive] = useState(0);
+  const [{ active, previous, isFading }, setCarousel] = useState({
+    active: 0,
+    previous: null as number | null,
+    isFading: false,
+  });
 
   useEffect(() => {
-    const timer = window.setInterval(() => setActive((current) => (current + 1) % slides.length), 10_000);
+    const timer = window.setInterval(
+      () => setCarousel((current) => ({
+        active: (current.active + 1) % slides.length,
+        previous: current.active,
+        isFading: false,
+      })),
+      10_000,
+    );
     return () => window.clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    if (previous === null || !isFading) return;
+    const cleanup = window.setTimeout(() => {
+      setCarousel((current) => ({ ...current, previous: null }));
+    }, 750);
+    return () => window.clearTimeout(cleanup);
+  }, [previous, isFading]);
+
   const slide = slides[active];
-  const showPrevious = () => setActive((current) => (current - 1 + slides.length) % slides.length);
-  const showNext = () => setActive((current) => (current + 1) % slides.length);
+  const changeSlide = (direction: -1 | 1) => {
+    setCarousel((current) => ({
+      active: (current.active + direction + slides.length) % slides.length,
+      previous: current.active,
+      isFading: false,
+    }));
+  };
+  const showPrevious = () => changeSlide(-1);
+  const showNext = () => changeSlide(1);
 
   return (
     <div className="home-feature-carousel" role="region" aria-label="Featured BIDORA categories">
+      {previous !== null && (
+        <Image
+          className={`home-feature-image home-feature-image-previous${isFading ? ' is-fading' : ''}`}
+          src={slides[previous].image}
+          alt=""
+          aria-hidden="true"
+          fill
+          sizes="(max-width: 680px) 82vw, (max-width: 1000px) 42vw, 380px"
+        />
+      )}
       <Image
         key={slide.image}
-        className="home-feature-image"
+        className={`home-feature-image home-feature-image-current${previous !== null && !isFading ? ' is-loading' : ''}`}
         src={slide.image}
         alt={`${slide.category}: ${slide.title}`}
         fill
         priority={active === 0}
+        onLoad={() => setCarousel((current) => ({ ...current, isFading: true }))}
         sizes="(max-width: 680px) 82vw, (max-width: 1000px) 42vw, 380px"
       />
       <div className="home-feature-shade" />
