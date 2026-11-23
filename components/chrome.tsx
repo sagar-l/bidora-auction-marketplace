@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Search, Heart, UserRound } from 'lucide-react';
 import { MobileNavigation } from '@/components/mobile-navigation';
 import { PresenceTracker } from '@/components/presence-tracker';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { getSupabaseAuthContext, getSupabaseProfile } from '@/lib/supabase/server';
 import { signOut } from '@/app/actions';
 
 function Brand() {
@@ -11,11 +11,8 @@ function Brand() {
 }
 
 export async function SiteHeader() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-  const { data: profile } = supabase && user
-    ? await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
-    : { data: null };
+  const { user } = await getSupabaseAuthContext();
+  const profile = user ? await getSupabaseProfile(user.id) : null;
   const isSeller = profile?.role === 'seller' || profile?.role === 'admin';
   const actionHref = user ? (isSeller ? '/sell' : '/auctions') : '/login?intent=sell&next=%2Fsell';
   const actionLabel = user && !isSeller ? 'Buy an item' : 'Sell an item';

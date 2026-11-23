@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Activity, ArrowUpRight, Clock3, Gavel, Heart, Package, Store, Users, Wallet } from 'lucide-react';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { getSupabaseAuthContext, getSupabaseProfile } from '@/lib/supabase/server';
 import { auctions as demo } from '@/data/auctions';
 import { AuctionCard } from '@/components/auction-card';
 import { DashboardRefresh } from '@/components/dashboard-refresh';
@@ -9,12 +9,11 @@ import { DashboardRefresh } from '@/components/dashboard-refresh';
 const formatMoney = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(amount);
 
 export default async function Dashboard() {
-  const supabase = await createSupabaseServerClient();
+  const { supabase, user } = await getSupabaseAuthContext();
   if (!supabase) return <DemoDashboard/>;
-  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase.from('profiles').select('display_name,role').eq('id', user.id).maybeSingle();
+  const profile = await getSupabaseProfile(user.id);
   const isSeller = profile?.role === 'seller' || profile?.role === 'admin';
   const primaryActionHref = isSeller ? '/sell' : '/auctions';
   const primaryActionLabel = isSeller ? 'List an item' : 'Buy an item';

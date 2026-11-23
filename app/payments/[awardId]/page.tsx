@@ -1,16 +1,15 @@
 import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { CheckCircle2, Clock3, PackageCheck } from 'lucide-react';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { getSupabaseAuthContext } from '@/lib/supabase/server';
 import { PaymentCheckout } from '@/components/payment-checkout';
 import { submitAwardDelivery } from '@/app/actions';
 
 const formatMoney = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(amount);
 
 export default async function AwardPaymentPage({ params, searchParams }: { params: { awardId: string }; searchParams: { message?: string; error?: string; payment?: string } }) {
-  const supabase = await createSupabaseServerClient();
+  const { supabase, user } = await getSupabaseAuthContext();
   if (!supabase) return <section className="section page-section"><div className="container narrow"><h1>Payment setup required</h1><p className="muted">Connect the BIDORA backend to view this award.</p></div></section>;
-  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
   const { data: award } = await supabase.from('auction_awards').select('id,listing_title,amount,currency,status,payment_deadline,created_at,delivery_name,delivery_phone,delivery_address,delivery_notes,paid_at').eq('id', params.awardId).maybeSingle();
   if (!award) notFound();

@@ -4,13 +4,11 @@ import {categories} from '@/data/auctions';
 import {getAuctions} from '@/lib/auctions';
 import {AuctionCard,ProductImage,SectionHeading} from '@/components/auction-card';
 import {HomeFeatureCarousel} from '@/components/home-feature-carousel';
-import {createSupabaseServerClient} from '@/lib/supabase/server';
+import {getSupabaseAuthContext,getSupabaseProfile} from '@/lib/supabase/server';
 
 export default async function Home(){
-  const {items}=await getAuctions();
-  const supabase=await createSupabaseServerClient();
-  const {data:{user}}=supabase?await supabase.auth.getUser():{data:{user:null}};
-  const {data:profile}=supabase&&user?await supabase.from('profiles').select('role').eq('id',user.id).maybeSingle():{data:null};
+  const [{items},{user}]=await Promise.all([getAuctions(),getSupabaseAuthContext()]);
+  const profile=user?await getSupabaseProfile(user.id):null;
   const isSeller=profile?.role==='seller'||profile?.role==='admin';
   const actionHref=user?(isSeller?'/sell':'/auctions'):'/login?intent=sell&next=%2Fsell';
   const actionLabel=user&&!isSeller?'Buy an item':'Start selling';

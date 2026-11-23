@@ -1,5 +1,5 @@
 import { auctions as demoAuctions, type Auction } from '@/data/auctions';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServerClient, getSupabaseAuthContext, getSupabaseProfile } from '@/lib/supabase/server';
 
 export async function getAuctions() {
   const supabase = await createSupabaseServerClient();
@@ -16,7 +16,7 @@ export async function getAuctions() {
 }
 
 export async function getAuctionBySlug(slug: string) {
-  const supabase = await createSupabaseServerClient();
+  const { supabase, user: authUser } = await getSupabaseAuthContext();
   if (!supabase) return demoAuctions.find((item) => item.id === slug) || null;
   const { data } = await supabase.from('auctions').select('id,slug,title,category,current_price,bid_count,ends_at,latest_bid_at,image_url,condition,seller_id,description,status,auction_round').eq('slug',slug).maybeSingle();
   if (!data) return null;
@@ -24,15 +24,12 @@ export async function getAuctionBySlug(slug: string) {
   let isWinner = false;
   let winnerName: string | undefined;
   if (data.status === 'ended') {
-    const [{ data: auth }, { data: result }] = await Promise.all([
-      supabase.auth.getUser(),
-      supabase.from('auction_awards').select('id,bidder_id,amount,status').eq('auction_id', data.id).eq('auction_round', data.auction_round).maybeSingle(),
-    ]);
+    const { data: result } = await supabase.from('auction_awards').select('id,bidder_id,amount,status').eq('auction_id', data.id).eq('auction_round', data.auction_round).maybeSingle();
     award = result;
-    isWinner = Boolean(auth.user && award && auth.user.id === award.bidder_id && award.status !== 'expired');
+    isWinner = Boolean(authUser && award && authUser.id === award.bidder_id && award.status !== 'expired');
     if (isWinner) {
-      const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', award!.bidder_id).maybeSingle();
-      winnerName = profile?.display_name || auth.user?.email?.split('@')[0] || 'BIDORA member';
+      const profile = await getSupabaseProfile(award!.bidder_id);
+      winnerName = profile?.display_name || authUser?.email?.split('@')[0] || 'BIDORA member';
     }
   }
   const endsAt = closeAt(data.ends_at, data.latest_bid_at);

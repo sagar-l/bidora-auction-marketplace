@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ArrowLeft, BadgeCheck, Mail, ShoppingBag, Tag, UserRound } from 'lucide-react';
 import { updateProfile } from '@/app/actions';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { getSupabaseAuthContext, getSupabaseProfile } from '@/lib/supabase/server';
 
 type AccountPageProps = { searchParams: { message?: string; error?: string } };
 type Award = {
@@ -34,13 +34,12 @@ function statusLabel(status: Award['status']) {
 }
 
 export default async function AccountPage({ searchParams }: AccountPageProps) {
-  const supabase = await createSupabaseServerClient();
+  const { supabase, user } = await getSupabaseAuthContext();
   if (!supabase) {
     return <section className="section page-section"><div className="container narrow"><div className="eyebrow">YOUR BIDORA</div><h1>My account</h1><p className="muted">Connect Supabase to view your profile.</p><Link className="btn btn-primary" href="/login">Sign in</Link></div></section>;
   }
-  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
-  const { data: profile } = await supabase.from('profiles').select('display_name,role').eq('id', user.id).maybeSingle();
+  const profile = await getSupabaseProfile(user.id);
   const displayName = profile?.display_name || user.user_metadata?.display_name || user.email?.split('@')[0] || 'BIDORA member';
   const role = profile?.role || 'buyer';
   const isSeller = role === 'seller';

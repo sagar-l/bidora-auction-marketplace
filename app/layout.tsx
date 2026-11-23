@@ -4,6 +4,7 @@ import './theme.css';
 import './bidi-chat.css';
 import './home-feature-carousel.css';
 import './category-photo-grid.css';
+import './route-loading.css';
 import { SiteHeader, SiteFooter } from '@/components/chrome';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { BidiChat } from '@/components/bidi-chat';

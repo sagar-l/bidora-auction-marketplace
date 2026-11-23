@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ImagePlus, Upload } from 'lucide-react';
 import { createListing } from '@/app/actions';
 import { SubmitListingButton } from '@/components/submit-listing-button';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { getSupabaseAuthContext } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
 const errors: Record<string, string> = {
@@ -15,8 +15,7 @@ const errors: Record<string, string> = {
 };
 
 export default async function Sell({ searchParams }: { searchParams: { error?: string; message?: string } }) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseAuthContext();
   if (!user) redirect('/login?intent=sell&next=%2Fsell');
 
   const submitted = searchParams.message === 'submitted';

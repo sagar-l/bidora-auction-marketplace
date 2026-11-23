@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { Activity, ArrowUpRight, Flag, Gavel, PackageCheck, Store, Users, RefreshCw } from 'lucide-react';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { getSupabaseAuthContext, getSupabaseProfile } from '@/lib/supabase/server';
 import { moderateListing } from '@/app/actions';
 import { DashboardRefresh } from '@/components/dashboard-refresh';
 import { AdminDeleteListing } from '@/components/admin-delete-listing';
@@ -12,11 +12,10 @@ type AdminPageProps = { searchParams: { message?: string; error?: string } };
 export const dynamic = 'force-dynamic';
 
 export default async function Admin({ searchParams }: AdminPageProps) {
-  const supabase = await createSupabaseServerClient();
+  const { supabase, user } = await getSupabaseAuthContext();
   if (!supabase) return <SetupNotice/>;
-  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
+  const profile = await getSupabaseProfile(user.id);
   if (profile?.role !== 'admin') redirect('/dashboard');
 
   const onlineSince = new Date(Date.now() - 2 * 60 * 1000).toISOString();

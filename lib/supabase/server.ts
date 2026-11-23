@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { cache } from 'react';
 
 const fetchWithTimeout: typeof fetch = async (input, init = {}) => {
   const controller = new AbortController();
@@ -15,7 +16,7 @@ const fetchWithTimeout: typeof fetch = async (input, init = {}) => {
   }
 };
 
-export async function createSupabaseServerClient() {
+const createServerClientForRequest = async () => {
   const cookieStore = cookies();
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -32,4 +33,25 @@ export async function createSupabaseServerClient() {
       },
     },
   });
-}
+};
+
+// Reuse the cookie-bound client and auth lookup during a single server render.
+export const createSupabaseServerClient = cache(createServerClientForRequest);
+
+export const getSupabaseAuthContext = cache(async () => {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return { supabase: null, user: null };
+
+  const hasSessionCookie = cookies().getAll().some(({ name }) => name.startsWith('sb-') && name.includes('-auth-token'));
+  if (!hasSessionCookie) return { supabase, user: null };
+
+  const { data: { user } } = await supabase.auth.getUser();
+  return { supabase, user };
+});
+
+export const getSupabaseProfile = cache(async (userId: string) => {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return null;
+  const { data } = await supabase.from('profiles').select('display_name,role').eq('id', userId).maybeSingle();
+  return data;
+});
