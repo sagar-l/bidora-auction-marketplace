@@ -1,6 +1,6 @@
--- Let the winning bidder finalize their due auction immediately instead of
--- waiting for the once-per-minute cron worker. Row locking makes this safe
--- against bids and concurrent finalization attempts.
+-- Let the seller or a bidder in the current round finalize a due auction
+-- immediately instead of waiting for the once-per-minute cron worker. The
+-- database still selects the winner from all round bids under a row lock.
 create or replace function public.finalize_auction_if_due(p_auction_id uuid)
 returns boolean
 language plpgsql
@@ -33,14 +33,14 @@ begin
    order by b.amount desc, b.created_at asc
    limit 1;
 
-  -- Only a participant can initiate finalization; the database still selects
-  -- the winner by the authoritative amount/time ordering above.
-  if v_bid.id is null then
-    if auth.uid() is distinct from v_auction.seller_id then
-      return false;
-    end if;
-  elsif auth.uid() is distinct from v_bid.bidder_id
-    and auth.uid() is distinct from v_auction.seller_id then
+  -- Limit the state change to this auction's seller or a participant.
+  if auth.uid() is distinct from v_auction.seller_id
+     and not exists (
+       select 1 from public.bids b
+        where b.auction_id = v_auction.id
+          and b.auction_round = v_auction.auction_round
+          and b.bidder_id = auth.uid()
+     ) then
     return false;
   end if;
 
