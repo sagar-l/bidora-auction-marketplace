@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Search, Heart, UserRound } from 'lucide-react';
 import { MobileNavigation } from '@/components/mobile-navigation';
 import { PresenceTracker } from '@/components/presence-tracker';
+import { BuyerNotificationBell } from '@/components/buyer-notification-bell';
 import { getSupabaseAuthContext, getSupabaseProfile } from '@/lib/supabase/server';
 import { signOut } from '@/app/actions';
 
@@ -26,6 +27,7 @@ export async function SiteHeader() {
         {profile?.role === 'admin' && <Link href="/admin">Admin</Link>}
       </nav>
       <div className="header-actions">
+        {user && profile?.role === 'buyer' && <BuyerNotificationBell userId={user.id}/>}
         <Link className="icon-link" href="/auctions" aria-label="Search"><Search size={18}/></Link>
         <Link className="icon-link heart-link" href="/dashboard" aria-label="Saved"><Heart size={18}/></Link>
         {user ? <><Link className="btn btn-quiet header-login" href="/account">My account</Link><form action={signOut}><button className="btn btn-primary header-login">Sign out</button></form></> : <Link className="btn btn-primary header-login" href="/login"><UserRound size={15}/> Sign in</Link>}

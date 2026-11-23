@@ -1,0 +1,86 @@
+.interest-modal-backdrop {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: max(22px, env(safe-area-inset-top)) 16px max(22px, env(safe-area-inset-bottom));
+  background: #050609d9;
+  backdrop-filter: blur(12px);
+  animation: interest-backdrop-in .22s ease-out both;
+}
+
+.interest-modal {
+  width: min(650px, 100%);
+  padding: clamp(20px, 4vw, 34px);
+  border: 1px solid #49b9df44;
+  border-radius: 22px;
+  background: radial-gradient(ellipse at 100% 0, #007ba71f, transparent 42%), #111115;
+  box-shadow: 0 32px 100px #000b, 0 0 45px #007ba71a;
+  animation: interest-card-in .42s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.interest-modal-top { display:flex; align-items:center; gap:9px; color:#57c6e8; }
+.interest-sparkle { display:grid; place-items:center; width:34px; height:34px; border-radius:11px; background:#007ba722; animation: interest-sparkle 2s ease-in-out infinite; }
+.interest-step { margin-left:auto; color:#918e9b; font-size:9px; letter-spacing:.13em; }
+.interest-modal h2 { margin:20px 0 7px; color:#f5f3fa; font-size:clamp(26px,5vw,38px); letter-spacing:-.045em; }
+.interest-intro { max-width:500px; margin:0 0 20px; color:#aaa6b4; font-size:13px; line-height:1.6; }
+.interest-category-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:11px; }
+.interest-category { position:relative; min-height:108px; padding:0; overflow:hidden; border:1px solid #ffffff24; border-radius:13px; background:#17161e; color:#fff; text-align:left; cursor:pointer; isolation:isolate; animation: interest-tile-in .42s calc(var(--interest-index, 0) * 45ms) ease-out both; transition:border-color .2s, transform .2s, box-shadow .2s; }
+.interest-category:hover { transform:translateY(-2px); border-color:#53c1e5aa; }
+.interest-category.selected { border-color:#53c1e5; box-shadow:0 0 0 1px #53c1e555, 0 8px 24px #007ba733; }
+.interest-category-image,.interest-category-shade { position:absolute; z-index:-1; inset:0; }
+.interest-category-image { background-position:center 42%; background-size:cover; transition:transform .35s ease; }
+.interest-category:hover .interest-category-image,.interest-category.selected .interest-category-image { transform:scale(1.07); }
+.interest-category-shade { background:linear-gradient(180deg,#09090c20 15%,#09090ccf 100%); }
+.interest-category-name { position:absolute; left:12px; bottom:12px; font-size:13px; font-weight:700; text-shadow:0 1px 8px #000; }
+.interest-check { position:absolute; top:9px; right:9px; display:grid; place-items:center; width:24px; height:24px; border:1px solid #ffffff88; border-radius:50%; background:#08090ab8; color:#fff; transition:background .2s, border-color .2s; }
+.interest-category.selected .interest-check { background:#078db7; border-color:#81e0fc; }
+.interest-error { margin:12px 0 0; color:#ff9daf; font-size:12px; }
+.interest-modal-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; }
+.interest-skip { display:inline-flex; align-items:center; gap:6px; border:0; background:transparent; color:#aaa6b4; font:inherit; font-size:12px; cursor:pointer; }
+.interest-skip:hover { color:#fff; }
+.interest-skip:disabled,.interest-save:disabled { opacity:.55; cursor:wait; }
+.interest-save { min-width:180px; }
+.interest-privacy { margin:12px 0 0; color:#777582; font-size:10px; text-align:right; }
+
+.buyer-notification-wrap { position:relative; display:flex; }
+.buyer-notification-button { position:relative; }
+.buyer-notification-count { position:absolute; top:-4px; right:-4px; display:grid; place-items:center; min-width:16px; height:16px; padding:0 4px; border:2px solid #0a0a0a; border-radius:99px; background:#ff2d95; color:#fff; font-size:8px; font-weight:800; line-height:1; }
+.buyer-notification-panel { position:absolute; z-index:100; top:calc(100% + 12px); right:0; width:min(370px,calc(100vw - 24px)); overflow:hidden; border:1px solid #ffffff20; border-radius:15px; background:#111115; box-shadow:0 18px 55px #000b; animation:interest-card-in .2s ease-out both; }
+.buyer-notification-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:15px 17px; border-bottom:1px solid #ffffff12; }
+.buyer-notification-heading .eyebrow { font-size:9px; }
+.buyer-notification-heading h2 { margin:4px 0 0; color:#f5f3fa; font-size:18px; }
+.buyer-notification-heading>span { color:#94919d; font-size:10px; }
+.buyer-notification-list { max-height:min(430px,65vh); overflow:auto; }
+.buyer-notification-item { display:flex; gap:10px; padding:13px 16px; border-bottom:1px solid #ffffff10; color:inherit; text-decoration:none; transition:background .18s; }
+.buyer-notification-item:hover { background:#ffffff08; }
+.buyer-notification-dot { flex:none; width:7px; height:7px; margin-top:6px; border-radius:50%; background:transparent; }
+.buyer-notification-item.unread .buyer-notification-dot { background:#48c4e8; box-shadow:0 0 10px #48c4e877; }
+.buyer-notification-copy { display:grid; gap:5px; min-width:0; }
+.buyer-notification-copy strong { color:#f4f2f8; font-size:11px; }
+.buyer-notification-copy>span { color:#b5b2bd; font-size:11px; line-height:1.45; }
+.buyer-notification-copy small { color:#85828e; font-size:9px; }
+.buyer-notification-empty { display:grid; justify-items:center; gap:10px; padding:28px 24px; color:#9e9ba7; font-size:11px; line-height:1.5; text-align:center; }
+.buyer-notification-empty svg { color:#4cbfe2; }
+
+@keyframes interest-backdrop-in { from { opacity:0; } to { opacity:1; } }
+@keyframes interest-card-in { from { opacity:0; transform:translateY(10px) scale(.985); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes interest-tile-in { from { opacity:0; transform:translateY(9px); } to { opacity:1; transform:translateY(0); } }
+@keyframes interest-sparkle { 50% { box-shadow:0 0 22px #007ba755; transform:rotate(-6deg) scale(1.04); } }
+
+@media (max-width:600px) {
+  .interest-modal { padding:20px 16px; border-radius:18px; }
+  .interest-category-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .interest-category { min-height:91px; }
+  .interest-modal-actions { margin-top:16px; }
+  .interest-save { min-width:150px; padding-inline:12px; }
+  .interest-privacy { text-align:center; }
+  .buyer-notification-panel { right:-52px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .interest-modal-backdrop,.interest-modal,.interest-category,.interest-sparkle,.buyer-notification-panel { animation:none; }
+  .interest-category,.interest-category-image { transition:none; }
+}
