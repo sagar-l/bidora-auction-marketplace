@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
 export function AuctionDeadlineSettler({ auctionId, endsAt, ended }: { auctionId?: string; endsAt?: string; ended: boolean }) {
   const router = useRouter();
+  const [finalizingFor, setFinalizingFor] = useState('');
 
   useEffect(() => {
     if (!auctionId || !endsAt || ended) return;
@@ -27,19 +28,23 @@ export function AuctionDeadlineSettler({ auctionId, endsAt, ended }: { auctionId
       }
       if (inFlight) return;
       inFlight = true;
-      void supabase.rpc('finalize_auction_if_due', { p_auction_id: auctionId }).then(({ error }) => {
+      setFinalizingFor(endsAt);
+      void (async () => {
+        let failed = false;
+        try {
+          const { error } = await supabase.rpc('finalize_auction_if_due', { p_auction_id: auctionId });
+          failed = Boolean(error);
+        } catch {
+          failed = true;
+        }
         inFlight = false;
         if (!active) return;
-        if (error && ++attempts < 3) {
+        if (failed && ++attempts < 3) {
           timer = window.setTimeout(checkDeadline, 1200);
           return;
         }
         router.refresh();
-      }).catch(() => {
-        inFlight = false;
-        if (active && ++attempts < 3) timer = window.setTimeout(checkDeadline, 1200);
-        else if (active) router.refresh();
-      });
+      })();
     };
 
     const onVisibilityChange = () => {
@@ -58,5 +63,11 @@ export function AuctionDeadlineSettler({ auctionId, endsAt, ended }: { auctionId
     };
   }, [auctionId, endsAt, ended, router]);
 
-  return null;
+  if (!endsAt || finalizingFor !== endsAt || ended) return null;
+  return <div className="auction-finalizing-overlay" role="status" aria-live="polite" aria-busy="true">
+    <div className="auction-finalizing-card">
+      <span className="auction-finalizing-spinner" aria-hidden="true" />
+      <span><strong>Auction time is up.</strong> Confirming the winning bid and preparing the payment step…</span>
+    </div>
+  </div>;
 }

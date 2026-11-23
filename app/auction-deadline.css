@@ -1,0 +1,49 @@
+.auction-finalizing-overlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+  background: #050609e8;
+  backdrop-filter: blur(8px);
+}
+
+.auction-finalizing-card {
+  width: min(440px, 100%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #39bce277;
+  border-radius: 14px;
+  background: #10151bf2;
+  color: #e8f6fb;
+  box-shadow: 0 16px 50px #0009, 0 0 28px #0783a322;
+  font-size: 14px;
+  line-height: 1.45;
+  backdrop-filter: blur(16px);
+}
+
+.auction-finalizing-banner strong {
+  display: block;
+  color: #fff;
+}
+
+.auction-finalizing-spinner {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #54c8eb55;
+  border-top-color: #54c8eb;
+  border-radius: 50%;
+  animation: auction-finalizing-spin 0.75s linear infinite;
+}
+
+@keyframes auction-finalizing-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auction-finalizing-spinner { animation: none; }
+}
