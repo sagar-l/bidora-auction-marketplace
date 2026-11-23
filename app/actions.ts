@@ -97,12 +97,22 @@ export async function toggleWatchlist(formData: FormData) {
   if (!user) redirect('/login?message=signin-to-save');
   const auctionId = String(formData.get('auctionId') || '');
   const slug = String(formData.get('slug') || '');
-  const { data: saved } = await supabase.from('watchlist').select('auction_id').eq('user_id',user.id).eq('auction_id',auctionId).maybeSingle();
-  if (saved) await supabase.from('watchlist').delete().eq('user_id',user.id).eq('auction_id',auctionId);
-  else await supabase.from('watchlist').insert({user_id:user.id,auction_id:auctionId});
+  const fallback = slug ? `/auctions/${slug}` : '/watchlist';
+  const requestedReturn = String(formData.get('returnTo') || fallback);
+  const returnTo = requestedReturn.startsWith('/') && !requestedReturn.startsWith('//') ? requestedReturn : fallback;
+  const querySeparator = returnTo.includes('?') ? '&' : '?';
+  if (!auctionId) redirect(`${returnTo}${querySeparator}error=watchlist`);
+  const { data: saved, error: lookupError } = await supabase.from('watchlist').select('auction_id').eq('user_id',user.id).eq('auction_id',auctionId).maybeSingle();
+  if (lookupError) redirect(`${returnTo}${querySeparator}error=watchlist`);
+  const { error } = saved
+    ? await supabase.from('watchlist').delete().eq('user_id',user.id).eq('auction_id',auctionId)
+    : await supabase.from('watchlist').insert({user_id:user.id,auction_id:auctionId});
+  if (error) redirect(`${returnTo}${querySeparator}error=watchlist`);
   revalidatePath('/dashboard');
+  revalidatePath('/watchlist');
+  revalidatePath('/auctions');
   revalidatePath(`/auctions/${slug}`);
-  redirect(`/auctions/${slug}?message=${saved?'watch-removed':'watch-added'}`);
+  redirect(`${returnTo}${querySeparator}message=${saved ? 'watch-removed' : 'watch-added'}`);
 }
 
 export async function moderateListing(formData: FormData) {

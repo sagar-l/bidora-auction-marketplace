@@ -29,7 +29,7 @@ export async function SiteHeader() {
       <div className="header-actions">
         {user && profile?.role === 'buyer' && <BuyerNotificationBell userId={user.id}/>}
         <Link className="icon-link" href="/auctions" aria-label="Search"><Search size={18}/></Link>
-        <Link className="icon-link heart-link" href="/dashboard" aria-label="Saved"><Heart size={18}/></Link>
+        <Link className="icon-link heart-link" href={user ? '/watchlist' : '/login?next=%2Fwatchlist'} aria-label="Wishlist"><Heart size={18}/></Link>
         {user ? <><Link className="btn btn-quiet header-login" href="/account">My account</Link><form action={signOut}><button className="btn btn-primary header-login">Sign out</button></form></> : <Link className="btn btn-primary header-login" href="/login"><UserRound size={15}/> Sign in</Link>}
       </div>
       <MobileNavigation actionHref={actionHref} actionLabel={actionLabel}/>

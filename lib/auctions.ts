@@ -33,7 +33,10 @@ export async function getAuctionBySlug(slug: string) {
     }
   }
   const endsAt = closeAt(data.ends_at, data.latest_bid_at);
-  return { id:data.slug, dbId:data.id, title:data.title, category:data.category, price:Number(data.current_price), bids:data.bid_count, ends:remaining(endsAt), endsAt, auctionEnded:data.status === 'ended', isWinner, awardId:isWinner ? award?.id : undefined, winningAmount:isWinner ? Number(award?.amount) : undefined, winnerName, image:data.image_url || 'photo-1523170335258-f5ed11844a49', condition:data.condition, seller:'BIDORA seller', description:data.description } satisfies Auction;
+  const { data: saved } = authUser
+    ? await supabase.from('watchlist').select('auction_id').eq('user_id', authUser.id).eq('auction_id', data.id).maybeSingle()
+    : { data: null };
+  return { id:data.slug, dbId:data.id, title:data.title, category:data.category, price:Number(data.current_price), bids:data.bid_count, ends:remaining(endsAt), endsAt, auctionEnded:data.status === 'ended', isWinner, awardId:isWinner ? award?.id : undefined, winningAmount:isWinner ? Number(award?.amount) : undefined, winnerName, image:data.image_url || 'photo-1523170335258-f5ed11844a49', condition:data.condition, seller:'BIDORA seller', description:data.description, isSaved:!!saved } satisfies Auction;
 }
 
 function closeAt(end: string, latestBid: string | null) {

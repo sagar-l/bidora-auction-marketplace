@@ -5,6 +5,7 @@ import { getSupabaseAuthContext, getSupabaseProfile } from '@/lib/supabase/serve
 import { auctions as demo } from '@/data/auctions';
 import { AuctionCard } from '@/components/auction-card';
 import { DashboardRefresh } from '@/components/dashboard-refresh';
+import { getAuctions } from '@/lib/auctions';
 
 const formatMoney = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(amount);
 
@@ -18,7 +19,7 @@ export default async function Dashboard() {
   const primaryActionHref = isSeller ? '/sell' : '/auctions';
   const primaryActionLabel = isSeller ? 'List an item' : 'Buy an item';
   const onlineSince = new Date(Date.now() - 2 * 60 * 1000).toISOString();
-  const [{ data: listings }, { data: bids }, { data: saved }, { count: buyers }, { count: sellers }, { count: onlineBuyers }, { count: onlineSellers }, { data: awards }] = await Promise.all([
+  const [{ data: listings }, { data: bids }, { data: saved }, { count: buyers }, { count: sellers }, { count: onlineBuyers }, { count: onlineSellers }, { data: awards }, { items: liveAuctions }] = await Promise.all([
     supabase.from('auctions').select('id,slug,title,status,current_price,ends_at,category,condition,description,image_url,bid_count').eq('seller_id', user.id).order('created_at', { ascending: false }).limit(6),
     supabase.from('bids').select('id,amount,auction_id,created_at').eq('bidder_id', user.id).order('created_at', { ascending: false }).limit(8),
     supabase.from('watchlist').select('auction_id').eq('user_id', user.id),
@@ -27,9 +28,12 @@ export default async function Dashboard() {
     supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'buyer').gte('last_seen_at', onlineSince),
     supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'seller').gte('last_seen_at', onlineSince),
     supabase.from('auction_awards').select('id,listing_title,amount,status,payment_deadline').eq('bidder_id', user.id).order('created_at', { ascending: false }).limit(8),
+    getAuctions(),
   ]);
 
   const liveBids = (bids || []).filter((bid) => bid.auction_id);
+  const savedIds = (saved || []).map((row) => row.auction_id);
+  const savedAuctions = liveAuctions.filter((auction) => !!auction.dbId && savedIds.includes(auction.dbId));
   const ownItems = (listings || []).map((auction) => ({
     id: auction.slug,
     title: auction.title,
@@ -49,7 +53,9 @@ export default async function Dashboard() {
       <div className="container">
         <DashboardRefresh/>
         <div className="dashboard-welcome"><div><div className="eyebrow">YOUR BIDORA</div><h1>Welcome, {profile?.display_name || user.email?.split('@')[0]}</h1><p className="muted">Your account, bids and listings in one place.</p></div><Link href={primaryActionHref} className="btn btn-primary">{primaryActionLabel} <ArrowUpRight size={15}/></Link></div>
-        <div className="stat-grid"><Stat icon={<Gavel/>} label="Your bids" value={String(liveBids.length).padStart(2, '0')} hint="Recent bid activity"/><Stat icon={<Heart/>} label="Watchlist" value={String(saved?.length || 0).padStart(2, '0')} hint="Saved auctions"/><Stat icon={<Package/>} label="Your listings" value={String(listings?.length || 0).padStart(2, '0')} hint="Including review queue"/><Stat icon={<Wallet/>} label="Account" value={profile?.role || 'buyer'} hint={user.email || ''}/></div>
+        <div className="stat-grid"><Stat icon={<Gavel/>} label="Your bids" value={String(liveBids.length).padStart(2, '0')} hint="Recent bid activity"/><Link href="/watchlist" className="stat-card-link"><Stat icon={<Heart/>} label="Wishlist" value={String(savedAuctions.length).padStart(2, '0')} hint="View saved auctions"/></Link><Stat icon={<Package/>} label="Your listings" value={String(listings?.length || 0).padStart(2, '0')} hint="Including review queue"/><Stat icon={<Wallet/>} label="Account" value={profile?.role || 'buyer'} hint={user.email || ''}/></div>
+
+        <section className="dashboard-wishlist"><div className="section-head compact"><div><div className="eyebrow">SAVED FOR LATER</div><h2>Your wishlist</h2></div><Link href="/watchlist" className="text-link">View wishlist <ArrowUpRight size={14}/></Link></div>{savedAuctions.length ? <div className="grid-cards dashboard-cards">{savedAuctions.slice(0, 4).map((auction, index) => <AuctionCard item={auction} key={auction.id} index={index} isSaved returnTo="/dashboard"/>)}</div> : <div className="surface activity-panel">No saved auctions yet. <Link className="text-link" href="/auctions">Browse auctions and tap the heart to save one.</Link></div>}</section>
 
         <section className="community-panel surface" aria-label="BIDORA buyer and seller counts">
           <div className="community-panel-heading"><div><div className="eyebrow">BIDORA COMMUNITY</div><h2>Members on the marketplace</h2></div><span className="online-key"><i/> Online now</span></div>
