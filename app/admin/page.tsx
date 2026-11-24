@@ -52,9 +52,11 @@ export default async function Admin({ searchParams }: AdminPageProps) {
     if (!leaderByRound.has(key)) leaderByRound.set(key, bid);
   }
   const awardByRound = new Map<string, NonNullable<typeof awards>[number]>();
+  const latestAwardByAuction = new Map<string, NonNullable<typeof awards>[number]>();
   for (const award of awards || []) {
     const key = `${award.auction_id}:${award.auction_round}`;
     if (!awardByRound.has(key)) awardByRound.set(key, award);
+    if (!latestAwardByAuction.has(award.auction_id)) latestAwardByAuction.set(award.auction_id, award);
   }
   const participants = Array.from(new Set([
     ...rows.map((auction) => auction.seller_id),
@@ -110,8 +112,18 @@ export default async function Admin({ searchParams }: AdminPageProps) {
                 <td>{formatMoney(Number(auction.current_price || 0))}</td>
                 <td>{(() => {
                   const key = `${auction.id}:${auction.auction_round ?? 1}`;
-                  const buyerId = auction.status === 'live' ? leaderByRound.get(key)?.bidder_id : awardByRound.get(key)?.bidder_id;
-                  return buyerId ? <>{displayNames.get(buyerId) || `Member ${buyerId.slice(0, 8)}`}<small className="admin-subcell">{buyerId}</small></> : auction.status === 'live' ? 'No bids yet' : '—';
+                  const roundAward = awardByRound.get(key);
+                  const roundLeader = leaderByRound.get(key);
+                  const previousAward = latestAwardByAuction.get(auction.id);
+                  const result = auction.status === 'live'
+                    ? roundLeader ? { bidderId: roundLeader.bidder_id, detail: `Leading · Round ${roundLeader.auction_round}` } : null
+                    : roundAward ? { bidderId: roundAward.bidder_id, detail: `Winner · Round ${roundAward.auction_round}` }
+                      : roundLeader ? { bidderId: roundLeader.bidder_id, detail: `Highest bid · Round ${roundLeader.auction_round}` }
+                        : previousAward ? { bidderId: previousAward.bidder_id, detail: `Previous winner · Round ${previousAward.auction_round} · ${previousAward.status.replaceAll('_', ' ')}` }
+                          : null;
+                  return result
+                    ? <><strong>{displayNames.get(result.bidderId) || `Member ${result.bidderId.slice(0, 8)}`}</strong><small className="admin-subcell">{result.detail}</small></>
+                    : auction.status === 'live' ? 'No bids yet' : 'No winner recorded';
                 })()}</td>
                 <td><span className={`status-pill ${auction.status === 'live' ? 'status-live' : auction.status === 'pending' ? 'status-review' : 'status-rejected'}`}>{auction.status}</span></td>
               </tr>)}</tbody>
